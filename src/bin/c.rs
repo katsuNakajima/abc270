@@ -41,33 +41,34 @@ macro_rules! parse_vec {
 
 type Graph = Vec<Vec<usize>>;
 
-fn dfs(g: &Graph, v: usize, seen: &mut Vec<bool>, end: usize, ans: &mut Vec<usize>) {
-    seen[v] = true;
-    ans.push(v);
-    for next_v in &g[v] {
-        if seen[*next_v] {
+fn dfs(g: &Graph, st: usize, end: usize, ans: &mut Vec<usize>, n: usize) -> bool {
+    if st == end {
+        ans.push(st);
+        return true;
+    }
+    for &i in g[st].iter() {
+        if i == n {
             continue;
         }
-        if end == *next_v {
-            break;
+        if dfs(&g, i, end, ans, st) {
+            ans.push(st);
+            return true;
         }
-        dfs(&g, *next_v, seen, end, ans);
     }
-    ans.pop();
-    ans.push(end);
+    false
 }
 
 fn main() {
     let mut ans = Vec::new();
     let (n, y, z) = parse_line!(usize, usize, usize);
     let mut g: Graph = vec![Vec::new(); n + 1];
-    let mut seen = vec![false; n + 1];
     for _i in 0..n - 1 {
         let (u, v) = parse_line!(usize, usize);
         g[u].push(v);
         g[v].push(u);
     }
-    dfs(&g, y, &mut seen, z,&mut ans);
+    dfs(&g, y, z, &mut ans, n);
+    ans.reverse();
     for x in ans {
         print!("{} ", x);
     }
